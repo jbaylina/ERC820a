@@ -16,7 +16,7 @@
     "build:sol": "solc --overwrite --optimize --optimize-runs 200 --metadata-literal --output-dir ./artifacts --combined-json abi,asm,bin,devdoc,hashes,interface,metadata,opcodes,srcmap,userdoc ./contracts/*.sol",
     "build": "npm run clean && npm run build:sol",
     "test": "npm run build && mocha --harmony",
-    "clean": "rm -rf build artifacts",
+    "clean": "rm -rf artifacts",
     "info": "node js/info.js",
     "prepack": "npm run test"
   },

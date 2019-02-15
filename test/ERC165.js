@@ -1,38 +1,28 @@
 const TestRPC = require('ganache-cli');
 const Web3 = require('web3');
 const chai = require('chai');
-const ERC820a = require('../index.js');
-const ExampleImplementer = require("../artifacts/contracts").ExampleImplementer;
-const ExampleImplementer2 = require("../artifacts/contracts").ExampleImplementer2;
-const LegacyNoCB = require("../artifacts/contracts").LegacyNoCB;
-const LegacyCBNoReturn  = require("../artifacts/contracts").LegacyCBNoReturn;
-const LegacyCBReturnTrue  = require("../artifacts/contracts").LegacyCBReturnTrue;
-const LegacyCBReturnFalse  = require("../artifacts/contracts").LegacyCBReturnFalse;
-const Lisa = require("../artifacts/contracts").Lisa;
-const Homer = require("../artifacts/contracts").Homer;
-
 const assert = chai.assert;
-const { utils } = Web3;
-const log = (msg) => { if (process.env.MOCHA_VERBOSE) console.log(msg); };
-const blocks = [];
-const ERC165_Id = "0x01ffc9a7";
-const Invalid_Id = "0xffffffff";
-const Simpson_Id = "0x73B6B492";
 
-describe('ERC165 Compatibility Test', () => {
+const ERC820a = require('../index.js');
+const artifacts = require('../js/artifacts')();
+
+const ERC165_ID = '0x01ffc9a7';
+const INVALID_ID = '0xffffffff';
+const SIMPSON_ID = '0x73B6B492';
+
+describe('ERC165 Compatibility Test', function() {
     let testrpc;
     let web3;
     let accounts;
     let erc820aRegistry;
     let addr;
-    let proxy;
-    let implementer;
-    let implementer2;
     let manager1;
     let manager2;
-    let interfaceHash;
     let lisa;
     let homer;
+
+    this.slow(300);
+    this.timeout(6000);
 
     before(async () => {
         testrpc = TestRPC.server({
@@ -54,83 +44,83 @@ describe('ERC165 Compatibility Test', () => {
 
     it('should deploy ERC820a', async () => {
         erc820aRegistry = await ERC820a.deploy(web3, accounts[0]);
-        assert.ok(erc820aRegistry.$address);
-        log(erc820aRegistry.$address);
-    }).timeout(20000);
+        assert.ok(erc820aRegistry.options.address);
+        assert.equal(erc820aRegistry.options.address, "0x0360C40F01a340Ef427dF211981C74d5F50E706D");
+    });
 
     it('should return noInterface for LegacyNoCB', async () => {
-        const c = await LegacyNoCB.new(web3);
-        assert.ok(c.$address);
-        const r = await erc820aRegistry.implementsERC165InterfaceNoCache(c.$address, ERC165_Id);
-        assert.equal(r, false);
+        const c = await artifacts.contracts.TestERC165.LegacyNoCB.deploy(web3);
+        assert.ok(c.options.address);
+        const r = await erc820aRegistry.methods.implementsERC165InterfaceNoCache(c.options.address, ERC165_ID).call();
+        assert.isFalse(r);
     });
 
 
     it('should return noInterface for LegacyCBNoReturn', async () => {
-        const c = await LegacyCBNoReturn.new(web3);
-        assert.ok(c.$address);
-        const r = await erc820aRegistry.implementsERC165InterfaceNoCache(c.$address, ERC165_Id);
-        assert.equal(r, false);
+        const c = await artifacts.contracts.TestERC165.LegacyCBNoReturn.deploy(web3);
+        assert.ok(c.options.address);
+        const r = await erc820aRegistry.methods.implementsERC165InterfaceNoCache(c.options.address, ERC165_ID).call();
+        assert.isFalse(r);
     });
 
     it('should return noInterface for LegacyCBReturnTrue', async () => {
-        const c = await LegacyCBReturnTrue.new(web3);
-        assert.ok(c.$address);
-        const r = await erc820aRegistry.implementsERC165InterfaceNoCache(c.$address, ERC165_Id);
-        assert.equal(r, false);
+        const c = await artifacts.contracts.TestERC165.LegacyCBReturnTrue.deploy(web3);
+        assert.ok(c.options.address);
+        const r = await erc820aRegistry.methods.implementsERC165InterfaceNoCache(c.options.address, ERC165_ID).call();
+        assert.isFalse(r);
     });
 
     it('should return noInterface for LegacyCBReturnFalse', async () => {
-        const c = await LegacyCBReturnFalse.new(web3);
-        assert.ok(c.$address);
-        const r = await erc820aRegistry.implementsERC165InterfaceNoCache(c.$address, ERC165_Id);
-        assert.equal(r, false);
+        const c = await artifacts.contracts.TestERC165.LegacyCBReturnFalse.deploy(web3);
+        assert.ok(c.options.address);
+        const r = await erc820aRegistry.methods.implementsERC165InterfaceNoCache(c.options.address, ERC165_ID).call();
+        assert.isFalse(r);
     });
 
     it('should return true on a good impl of ERC165 Lisa', async () => {
-        lisa = await Lisa.new(web3);
-        assert.ok(lisa.$address);
-        const r1 = await lisa.supportsInterface(ERC165_Id);
-        assert.equal(r1, true);
-        const r2 = await lisa.supportsInterface(Invalid_Id);
-        assert.equal(r2, false);
-        const r3 = await lisa.supportsInterface(Simpson_Id);
-        assert.equal(r3, true);
-        const r4 = await erc820aRegistry.implementsERC165InterfaceNoCache(lisa.$address, ERC165_Id);
-        assert.equal(r4, true);
-        const r5 = await erc820aRegistry.implementsERC165InterfaceNoCache(lisa.$address, Invalid_Id);
-        assert.equal(r5, false);
-        const r6 = await erc820aRegistry.implementsERC165InterfaceNoCache(lisa.$address, Simpson_Id);
-        assert.equal(r6, true);
+        lisa = await artifacts.contracts.TestERC165.Lisa.deploy(web3);
+        assert.ok(lisa.options.address);
+        assert.isTrue(await lisa.methods.supportsInterface(ERC165_ID).call());
+        assert.isFalse(await lisa.methods.supportsInterface(INVALID_ID).call());
+        assert.isTrue(await lisa.methods.supportsInterface(SIMPSON_ID).call());
+
+        assert.isTrue(
+          await erc820aRegistry.methods.implementsERC165InterfaceNoCache(lisa.options.address, ERC165_ID).call());
+        assert.isFalse(
+          await erc820aRegistry.methods.implementsERC165InterfaceNoCache(lisa.options.address, INVALID_ID).call());
+        assert.isTrue(
+          await erc820aRegistry.methods.implementsERC165InterfaceNoCache(lisa.options.address, SIMPSON_ID).call());
     });
 
     it('should return true on a good impl of ERC165 Homer', async () => {
-        homer = await Homer.new(web3);
-        assert.ok(lisa.$address);
-        const r1 = await lisa.supportsInterface(ERC165_Id);
-        assert.equal(r1, true);
-        const r2 = await lisa.supportsInterface(Invalid_Id);
-        assert.equal(r2, false);
-        const r3 = await lisa.supportsInterface(Simpson_Id);
-        assert.equal(r3, true);
-        const r4 = await erc820aRegistry.implementsERC165InterfaceNoCache(lisa.$address, ERC165_Id);
-        assert.equal(r4, true);
-        const r5 = await erc820aRegistry.implementsERC165InterfaceNoCache(lisa.$address, Invalid_Id);
-        assert.equal(r5, false);
-        const r6 = await erc820aRegistry.implementsERC165InterfaceNoCache(lisa.$address, Simpson_Id);
-        assert.equal(r6, true);
+        homer = await artifacts.contracts.TestERC165.Homer.deploy(web3);
+        assert.ok(homer.options.address);
+        assert.isTrue(await homer.methods.supportsInterface(ERC165_ID).call());
+        assert.isFalse(await homer.methods.supportsInterface(INVALID_ID).call());
+        assert.isTrue(await homer.methods.supportsInterface(SIMPSON_ID).call());
+        assert.isTrue(
+          await erc820aRegistry.methods.implementsERC165InterfaceNoCache(homer.options.address, ERC165_ID).call());
+        assert.isFalse(
+          await erc820aRegistry.methods.implementsERC165InterfaceNoCache(homer.options.address, INVALID_ID).call());
+        assert.isTrue(
+          await erc820aRegistry.methods.implementsERC165InterfaceNoCache(homer.options.address, SIMPSON_ID).call());
     });
 
     it('should be compatible with ERC820a', async () => {
-        const g1 = await erc820aRegistry.$contract.methods.getInterfaceImplementer(lisa.$address, Simpson_Id).estimateGas();
-        const a = await erc820aRegistry.getInterfaceImplementer(lisa.$address, Simpson_Id);
-        assert.equal(a, lisa.$address);
-        const nc = await erc820aRegistry.getInterfaceImplementer(lisa.$address, Invalid_Id);
-        assert.equal(nc, "0x0000000000000000000000000000000000000000");
-        const b = await erc820aRegistry.getInterfaceImplementer(lisa.$address, ERC165_Id);
-        assert.equal(b, lisa.$address);
-        await erc820aRegistry.updateERC165Cache(lisa.$address, Simpson_Id);
-        const g2 = await erc820aRegistry.$contract.methods.getInterfaceImplementer(lisa.$address, Simpson_Id).estimateGas();
-        assert(g2 < g1);  // Gas after caching is lower!
+        const gasBefore = await erc820aRegistry.methods
+          .getInterfaceImplementer(lisa.options.address, SIMPSON_ID).estimateGas();
+        const responseBefore = await erc820aRegistry.methods
+          .getInterfaceImplementer(lisa.options.address, SIMPSON_ID).call();
+        assert.equal(responseBefore, lisa.options.address);
+
+        await erc820aRegistry.methods.updateERC165Cache(lisa.options.address, SIMPSON_ID).send({from: addr});
+
+        const gasAfter = await erc820aRegistry.methods
+          .getInterfaceImplementer(lisa.options.address, SIMPSON_ID).estimateGas();
+        const responseAfter = await erc820aRegistry.methods
+          .getInterfaceImplementer(lisa.options.address, SIMPSON_ID).call();
+        assert.equal(responseAfter, lisa.options.address);
+
+        assert.isBelow(gasAfter, gasBefore, "Gas after caching should be lower.");
     });
 });
