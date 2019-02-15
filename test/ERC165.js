@@ -45,7 +45,7 @@ describe('ERC165 Compatibility Test', function() {
     it('should deploy ERC820a', async () => {
         erc820aRegistry = await ERC820a.deploy(web3, accounts[0]);
         assert.ok(erc820aRegistry.options.address);
-        assert.equal(erc820aRegistry.options.address, "0x0360C40F01a340Ef427dF211981C74d5F50E706D");
+        assert.equal(erc820aRegistry.options.address, "0x820a4875aA7900995D6f4ed84ab66651dd582aef");
     });
 
     it('should return noInterface for LegacyNoCB', async () => {
