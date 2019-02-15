@@ -1,11 +1,11 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.3;
 
 
 contract ERC820aRegistry {
     function setInterfaceImplementer(address _addr, bytes32 _interfaceHash, address _implementer) external;
     function getInterfaceImplementer(address _addr, bytes32 _interfaceHash) external view returns (address);
     function setManager(address _addr, address _newManager) external;
-    function getManager(address _addr) public view returns(address);
+    function getManager(address _addr) public view returns (address);
 }
 
 
@@ -13,17 +13,17 @@ contract ERC820aRegistry {
 contract ERC820aClient {
     ERC820aRegistry constant ERC820aREGISTRY = ERC820aRegistry(0xc7b7A317C6290E737AB40F57C527b9c8068D0E03);
 
-    function setInterfaceImplementation(string _interfaceLabel, address _implementation) internal {
+    function setInterfaceImplementation(string memory _interfaceLabel, address _implementation) internal {
         bytes32 interfaceHash = keccak256(abi.encodePacked(_interfaceLabel));
-        ERC820aREGISTRY.setInterfaceImplementer(this, interfaceHash, _implementation);
+        ERC820AREGISTRY.setInterfaceImplementer(address(this), interfaceHash, _implementation);
     }
 
-    function interfaceAddr(address addr, string _interfaceLabel) internal view returns(address) {
+    function interfaceAddr(address addr, string memory _interfaceLabel) internal view returns(address) {
         bytes32 interfaceHash = keccak256(abi.encodePacked(_interfaceLabel));
-        return ERC820aREGISTRY.getInterfaceImplementer(addr, interfaceHash);
+        return ERC820AREGISTRY.getInterfaceImplementer(addr, interfaceHash);
     }
 
     function delegateManagement(address _newManager) internal {
-        ERC820aREGISTRY.setManager(this, _newManager);
+        ERC820AREGISTRY.setManager(address(this), _newManager);
     }
 }

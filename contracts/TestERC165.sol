@@ -1,17 +1,17 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.3;
 
 
 contract LegacyNoCB {} // solium-disable-line no-empty-blocks
 
 
 contract LegacyCBNoReturn {
-    function () public {
+    function () external {
     }
 }
 
 
 contract LegacyCBReturnTrue {
-    function () public {
+    function () external {
         assembly {
             mstore(0,1)
             return(0,32)
@@ -21,7 +21,7 @@ contract LegacyCBReturnTrue {
 
 
 contract LegacyCBReturnFalse {
-    function () public {
+    function () external {
         assembly {
             mstore(0,1)
             return(0,32)
@@ -55,7 +55,7 @@ contract ERC165MappingImplementation is ERC165 {
 
 interface Simpson {
     function is2D() external returns (bool);
-    function skinColor() external returns (string);
+    function skinColor() external returns (string memory);
 }
 
 
@@ -65,7 +65,7 @@ contract Lisa is ERC165MappingImplementation, Simpson {
     }
 
     function is2D() external returns (bool) {}
-    function skinColor() external returns (string) {}
+    function skinColor() external returns (string memory) {}
 }
 
 
@@ -77,5 +77,5 @@ contract Homer is ERC165, Simpson {
     }
 
     function is2D() external returns (bool) {}
-    function skinColor() external returns (string) {}
+    function skinColor() external returns (string memory) {}
 }

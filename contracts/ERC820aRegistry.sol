@@ -14,11 +14,11 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>.
  *
  *    ███████╗██████╗  ██████╗ █████╗ ██████╗  ██████╗
- *    ██╔════╝██╔══██╗██╔════╝██╔══██╗╚════██╗██╔═████╗
- *    █████╗  ██████╔╝██║     ╚█████╔╝ █████╔╝██║██╔██║   aaaa
- *    ██╔══╝  ██╔══██╗██║     ██╔══██╗██╔═══╝ ████╔╝██║  a    a
- *    ███████╗██║  ██║╚██████╗╚█████╔╝███████╗╚██████╔╝  a    a
- *    ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚════╝ ╚══════╝ ╚═════╝    aaaa aa
+ *    ██╔════╝██╔══██╗██╔════╝██╔══██╗╚════██╗██╔═████╗ ██████
+ *    █████╗  ██████╔╝██║     ╚█████╔╝ █████╔╝██║██╔██║      ██
+ *    ██╔══╝  ██╔══██╗██║     ██╔══██╗██╔═══╝ ████╔╝██║ ███████
+ *    ███████╗██║  ██║╚██████╗╚█████╔╝███████╗╚██████╔╝██    ██
+ *    ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚════╝ ╚══════╝ ╚═════╝  ██████
  *
  *    ██████╗ ███████╗ ██████╗ ██╗███████╗████████╗██████╗ ██╗   ██╗
  *    ██╔══██╗██╔════╝██╔════╝ ██║██╔════╝╚══██╔══╝██╔══██╗╚██╗ ██╔╝
@@ -28,7 +28,7 @@
  *    ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝
  *
  */
-pragma solidity 0.4.24;
+pragma solidity 0.5.3;
 // IV is value needed to have a vanity address starting with `0x820a`.
 // IV: 9513
 
@@ -38,7 +38,7 @@ interface ERC820aImplementerInterface {
     /// @notice Indicates whether the contract implements the interface `interfaceHash` for the address `addr` or not.
     /// @param interfaceHash keccak256 hash of the name of the interface
     /// @param addr Address for which the contract will implement the interface
-    /// @return ERC820a_ACCEPT_MAGIC only if the contract implements `interfaceHash` for the address `addr`.
+    /// @return ERC820A_ACCEPT_MAGIC only if the contract implements `interfaceHash` for the address `addr`.
     function canImplementInterfaceForAddress(bytes32 interfaceHash, address addr) external view returns(bytes32);
 }
 
@@ -49,15 +49,15 @@ interface ERC820aImplementerInterface {
 /// @notice For more details, see https://eips.ethereum.org/EIPS/eip-820a
 contract ERC820aRegistry {
     /// @notice ERC165 Invalid ID.
-    bytes4 constant INVALID_ID = 0xffffffff;
+    bytes4 constant internal INVALID_ID = 0xffffffff;
     /// @notice Method ID for the ERC165 supportsInterface method (= `bytes4(keccak256('supportsInterface(bytes4)'))`).
-    bytes4 constant ERC165ID = 0x01ffc9a7;
+    bytes4 constant internal ERC165ID = 0x01ffc9a7;
     /// @notice Magic value which is returned if a contract implements an interface on behalf of some other address.
-    bytes32 constant ERC820a_ACCEPT_MAGIC = keccak256(abi.encodePacked("ERC820a_ACCEPT_MAGIC"));
+    bytes32 constant internal ERC820A_ACCEPT_MAGIC = keccak256(abi.encodePacked("ERC820A_ACCEPT_MAGIC"));
 
-    mapping (address => mapping(bytes32 => address)) interfaces;
-    mapping (address => address) managers;
-    mapping (address => mapping(bytes4 => bool)) erc165Cached;
+    mapping(address => mapping(bytes32 => address)) internal interfaces;
+    mapping(address => address) internal managers;
+    mapping(address => mapping(bytes4 => bool)) internal erc165Cached;
 
     /// @notice Indicates a contract is the `implementer` of `interfaceHash` for `addr`.
     event InterfaceImplementerSet(address indexed addr, bytes32 indexed interfaceHash, address indexed implementer);
@@ -72,10 +72,10 @@ contract ERC820aRegistry {
     /// @return The address of the contract which implements the interface `_interfaceHash` for `_addr`
     /// or `0x0` if `_addr` did not register an implementer for this interface.
     function getInterfaceImplementer(address _addr, bytes32 _interfaceHash) external view returns (address) {
-        address addr = _addr == 0 ? msg.sender : _addr;
+        address addr = _addr == address(0) ? msg.sender : _addr;
         if (isERC165Interface(_interfaceHash)) {
             bytes4 erc165InterfaceHash = bytes4(_interfaceHash);
-            return implementsERC165Interface(addr, erc165InterfaceHash) ? addr : 0;
+            return implementsERC165Interface(addr, erc165InterfaceHash) ? addr : address(0);
         }
         return interfaces[addr][_interfaceHash];
     }
@@ -88,14 +88,14 @@ contract ERC820aRegistry {
     /// For example, `web3.utils.keccak256('ERC777TokensRecipient')` for the `ERC777TokensRecipient` interface.
     /// @param _implementer Contract address implementing _interfaceHash for _addr.
     function setInterfaceImplementer(address _addr, bytes32 _interfaceHash, address _implementer) external {
-        address addr = _addr == 0 ? msg.sender : _addr;
+        address addr = _addr == address(0) ? msg.sender : _addr;
         require(getManager(addr) == msg.sender, "Not the manager");
 
         require(!isERC165Interface(_interfaceHash), "Must not be a ERC165 hash");
-        if (_implementer != 0 && _implementer != msg.sender) {
+        if (_implementer != address(0) && _implementer != msg.sender) {
             require(
                 ERC820aImplementerInterface(_implementer)
-                    .canImplementInterfaceForAddress(_interfaceHash, addr) == ERC820a_ACCEPT_MAGIC,
+                    .canImplementInterfaceForAddress(_interfaceHash, addr) == ERC820A_ACCEPT_MAGIC,
                 "Does not implement the interface"
             );
         }
@@ -109,7 +109,7 @@ contract ERC820aRegistry {
     /// @param _newManager Address of the new manager for `addr`.
     function setManager(address _addr, address _newManager) external {
         require(getManager(_addr) == msg.sender, "Not the manager");
-        managers[_addr] = _newManager == _addr ? 0 : _newManager;
+        managers[_addr] = _newManager == _addr ? address(0) : _newManager;
         emit ManagerChanged(_addr, _newManager);
     }
 
@@ -118,7 +118,7 @@ contract ERC820aRegistry {
     /// @return Address of the manager for a given address.
     function getManager(address _addr) public view returns(address) {
         // By default the manager of an address is the same address
-        if (managers[_addr] == 0) {
+        if (managers[_addr] == address(0)) {
             return _addr;
         } else {
             return managers[_addr];
@@ -128,7 +128,7 @@ contract ERC820aRegistry {
     /// @notice Compute the keccak256 hash of an interface given its name.
     /// @param _interfaceName Name of the interface.
     /// @return The keccak256 hash of an interface name.
-    function interfaceHash(string _interfaceName) external pure returns(bytes32) {
+    function interfaceHash(string calldata _interfaceName) external pure returns(bytes32) {
         return keccak256(abi.encodePacked(_interfaceName));
     }
 
@@ -139,7 +139,8 @@ contract ERC820aRegistry {
     /// @param _contract Address of the contract for which to update the cache.
     /// @param _interfaceId ERC165 interface for which to update the cache.
     function updateERC165Cache(address _contract, bytes4 _interfaceId) external {
-        interfaces[_contract][_interfaceId] = implementsERC165InterfaceNoCache(_contract, _interfaceId) ? _contract : 0;
+        interfaces[_contract][_interfaceId] = implementsERC165InterfaceNoCache(
+            _contract, _interfaceId) ? _contract : address(0);
         erc165Cached[_contract][_interfaceId] = true;
     }
 
@@ -194,20 +195,20 @@ contract ERC820aRegistry {
         bytes4 erc165ID = ERC165ID;
 
         assembly {
-                let x := mload(0x40)               // Find empty storage location using "free memory pointer"
-                mstore(x, erc165ID)                // Place signature at beginning of empty storage
-                mstore(add(x, 0x04), _interfaceId) // Place first argument directly next to signature
+            let x := mload(0x40)               // Find empty storage location using "free memory pointer"
+            mstore(x, erc165ID)                // Place signature at beginning of empty storage
+            mstore(add(x, 0x04), _interfaceId) // Place first argument directly next to signature
 
-                success := staticcall(
-                    30000,                         // 30k gas
-                    _contract,                     // To addr
-                    x,                             // Inputs are stored at location x
-                    0x24,                          // Inputs are 36 (4 + 32) bytes long
-                    x,                             // Store output over input (saves space)
-                    0x20                           // Outputs are 32 bytes long
-                )
+            success := staticcall(
+                30000,                         // 30k gas
+                _contract,                     // To addr
+                x,                             // Inputs are stored at location x
+                0x24,                          // Inputs are 36 (4 + 32) bytes long
+                x,                             // Store output over input (saves space)
+                0x20                           // Outputs are 32 bytes long
+            )
 
-                result := mload(x)                 // Load the result
+            result := mload(x)                 // Load the result
         }
     }
 }
