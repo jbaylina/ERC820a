@@ -1,25 +1,30 @@
-const EthereumTx = require('ethereumjs-tx');
-const EthereumUtils = require('ethereumjs-util');
+const ethTx = require('ethereumjs-tx');
+const ethUtils = require('ethereumjs-util');
 
-const ERC820aRegistry = require('../artifacts/contracts').ERC820aRegistry;
+const artifacts = require('./artifacts')();
 const rawTransaction = require('./rawTransaction');
 
+
+
 generateDeployTx = () => {
-    const tx = new EthereumTx(rawTransaction);
+    const tx = new ethTx(rawTransaction);
     const res = {
-        sender: EthereumUtils.toChecksumAddress('0x' + tx.getSenderAddress().toString('hex')),
+        sender: ethUtils.toChecksumAddress(tx.getSenderAddress().toString('hex')),
         rawTx: '0x' + tx.serialize().toString('hex'),
-        contractAddr: EthereumUtils.toChecksumAddress(
-          '0x' + EthereumUtils.generateAddress('0x' + tx.getSenderAddress().toString('hex'), 0 ).toString('hex')),
-    }
+        contractAddr: ethUtils.toChecksumAddress(
+          ethUtils.generateAddress(tx.getSenderAddress(), ethUtils.toBuffer(0)).toString('hex')),
+    };
     return res;
 };
 
 
-deploy = async (web3, account) => {
+deploy = async (web3, account = undefined) => {
     const res = generateDeployTx();
 
     const deployedCode = await web3.eth.getCode(res.contractAddr);
+    if (!account) {
+        account = (await web3.eth.getAccounts())[0]
+    }
 
     if (deployedCode.length <=3 ) {
         await web3.eth.sendTransaction({
@@ -27,7 +32,7 @@ deploy = async (web3, account) => {
         });
         await web3.eth.sendSignedTransaction(res.rawTx);
     }
-    return new ERC820aRegistry(web3, res.contractAddr);
+    return await new web3.eth.Contract(artifacts.contracts.ERC820aRegistry.ERC820aRegistry.abi, res.contractAddr);
 };
 
 

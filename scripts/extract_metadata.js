@@ -1,4 +1,4 @@
-const output = require('../build/solcStandardOutput.json');
-const fs = require('fs');
+const artifacts = require('../js/artifacts')();
+const metadata = JSON.parse(artifacts.contracts.ERC820aRegistry.ERC820aRegistry.metadata);
 
-fs.writeFileSync('ERC820aRegistry_metadata.json', output.contracts['./contracts/ERC820aRegistry.sol'].ERC820aRegistry.metadata);
+console.log(JSON.stringify(metadata, null, 2));
