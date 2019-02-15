@@ -3,10 +3,17 @@
 [![License](https://img.shields.io/npm/l/erc820a.svg?style=flat-square&maxAge=3600)](https://github.com/jbaylina/ERC820a/blob/master/LICENSE)
 [![npm version](https://img.shields.io/npm/v/erc820a.svg?style=flat-square&maxAge=3600)](https://www.npmjs.com/package/erc820a)
 [![npm downloads](https://img.shields.io/npm/dt/erc820a.svg?style=flat-square&maxAge=3600)](https://www.npmjs.com/package/erc820a)
-[![Solidity version](https://img.shields.io/badge/Solidity-v0.4.24-ff69b4.svg?style=flat-square&maxAge=3600)](https://solidity.readthedocs.io/en/v0.4.24/installing-solidity.html)
+[![Solidity version](https://img.shields.io/badge/Solidity-v0.5.3-ff69b4.svg?style=flat-square&maxAge=3600)](https://solidity.readthedocs.io/en/v0.5.3/installing-solidity.html)
 [![EIP](https://img.shields.io/badge/EIP-820a-lightgrey.svg?style=flat-square&maxAge=3600)](https://eips.ethereum.org/EIPS/eip-820a)
 
 *Universal registry smart contract where any address (contract or regular account) can register which interface it supports and which smart contract is responsible for its implementation.*
+
+> :information_source: **[ERC820a] has superseded [ERC820].** :information_source:  
+> [ERC820a] fixes the incompatibility in the [ERC165] logic which was introduced by the Solidty 0.5 update.  
+> Have a look at the [official announcement][erc820a-annoucement], and the comments about the [bug][erc820-bug] and the [fix][erc820-fix].  
+> Apart from this fix, [ERC820a] is functionally equivalent to [ERC820].
+>
+> :warning: [ERC820a] MUST be used in lieu of [ERC820]. :warning:
 
 ## Proposal
 The official proposal can be found at: [eips.ethereum.org/EIPS/eip-820a][ERC820a].
@@ -24,6 +31,8 @@ The address of the registry on **all chains** is:
 The [ERC820a implementer interface] is the interface any contract MUST implement if said contract implements an interface on behalf of another address via ERC820a.
 
 ## Compilation & Verification
+
+> :warning: The `solc` compiler version `0.5.3+commit.10d17f24` must be present on the build machine. ([More info on installing solc][solc-install].)
 
 The registry can be compiled from the source code using:
 
@@ -75,6 +84,8 @@ The vanity address of the registry---starting with `0x820a`---has been generated
 The authors waive all copyright and related or neighboring rights for the rest of this repository's content via [CC0]. A copy of the [CC0] waiver is included in the [LICENSE] file.
 
 
+[ERC165]: https://eips.ethereum.org/EIPS/eip-165
+[ERC820]: https://eips.ethereum.org/EIPS/eip-820
 [ERC820a]: https://eips.ethereum.org/EIPS/eip-820a
 [ERC820a registry]: https://github.com/jbaylina/ERC820a/blob/master/contracts/ERC820aRegistry.sol
 [ERC820a implementer interface]: https://github.com/jbaylina/erc820a/blob/master/contracts/ERC820aImplementerInterface.sol
@@ -84,3 +95,8 @@ The authors waive all copyright and related or neighboring rights for the rest o
 [0xjac]: https://github.com/0xjac
 [CC0]: http://creativecommons.org/publicdomain/zero/1.0/
 [LICENSE]: https://github.com/jbaylina/erc820a/blob/master/LICENSE
+[solc-install]: https://solidity.readthedocs.io/en/v0.5.4/installing-solidity.html
+[erc820a-annoucement]: https://github.com/ethereum/EIPs/issues/820#issuecomment-464109166
+[erc820-bug]: https://github.com/ethereum/EIPs/issues/820#issuecomment-452465748
+[erc820-fix]: https://github.com/ethereum/EIPs/issues/820#issuecomment-454021564
+
