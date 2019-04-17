@@ -12,7 +12,7 @@
 > [ERC1820] fixes the incompatibility in the [ERC165] logic which was introduced by the Solidity 0.5 update.  
 > Have a look at the [official announcement][erc1820-annoucement], and the comments about the [bug][erc820-bug] and the [fix][erc820-fix].  
 > Apart from this fix, [ERC1820] is functionally equivalent to [ERC820].
-> [ERC1820] contains the same fix as [ERC820a], and was created to replace [ERC820a] eWhose nomenclature was deemed non-compliant. 
+> [ERC1820] contains the same fix as [ERC820a], and was created to replace [ERC820a] whose nomenclature was deemed non-compliant. 
 >
 > :warning: [ERC1820] MUST be used in lieu of [ERC820]/[ERC820a]. :warning:  
 > :warning: See [0xjac/ERC1820] for the implementation  and npm package of the registry. :warning:
