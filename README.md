@@ -8,6 +8,15 @@
 
 *Universal registry smart contract where any address (contract or regular account) can register which interface it supports and which smart contract is responsible for its implementation.*
 
+> :information_source: **[ERC1820] has superseded [ERC820].** :information_source:  
+> [ERC1820] fixes the incompatibility in the [ERC165] logic which was introduced by the Solidity 0.5 update.  
+> Have a look at the [official announcement][erc1820-annoucement], and the comments about the [bug][erc820-bug] and the [fix][erc820-fix].  
+> Apart from this fix, [ERC1820] is functionally equivalent to [ERC820].
+> [ERC1820] contains the same fix as [ERC820a], and was created to replace [ERC820a] eWhose nomenclature was deemed non-compliant. 
+>
+> :warning: [ERC1820] MUST be used in lieu of [ERC820]/[ERC820a]. :warning:  
+> :warning: See [0xjac/ERC1820] for the implementation  and npm package of the registry. :warning:
+
 ## Proposal
 The official proposal can be found at: [eips.ethereum.org/EIPS/eip-820a][ERC820a].
 
@@ -84,3 +93,10 @@ The authors waive all copyright and related or neighboring rights for the rest o
 [0xjac]: https://github.com/0xjac
 [CC0]: http://creativecommons.org/publicdomain/zero/1.0/
 [LICENSE]: https://github.com/jbaylina/erc820a/blob/master/LICENSE
+[ERC165]: https://eips.ethereum.org/EIPS/eip-165
+[ERC820]: https://eips.ethereum.org/EIPS/eip-820
+[ERC1820]: https://eips.ethereum.org/EIPS/eip-1820
+[0xjac/ERC1820]: https://github.com/0xjac/ERC1820
+[erc1820-annoucement]: https://github.com/ethereum/EIPs/issues/820#issuecomment-464109166
+[erc820-bug]: https://github.com/ethereum/EIPs/issues/820#issuecomment-452465748
+[erc820-fix]: https://github.com/ethereum/EIPs/issues/820#issuecomment-454021564
